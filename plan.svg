@@ -75,8 +75,8 @@
 <text x="900.8" y="421.6" font-size="10" text-anchor="middle" font-family="sans-serif" >20.2 м²</text>
 <circle cx="972.8" cy="360.8" r="5" fill="#c0392b"/>
 <text x="996.8" y="399.2" font-size="10" text-anchor="middle" font-family="sans-serif" fill="#c0392b" font-weight="bold">вход</text>
-<circle cx="524.8" cy="388.0" r="5" fill="#c0392b"/>
-<text x="492.8" y="428.0" font-size="10" text-anchor="middle" font-family="sans-serif" fill="#c0392b" font-weight="bold">в сад</text>
+<circle cx="524.8" cy="383.2" r="5" fill="#c0392b"/>
+<text x="492.8" y="423.2" font-size="10" text-anchor="middle" font-family="sans-serif" fill="#c0392b" font-weight="bold">в сад</text>
 <line x1="460.8" y1="557.6" x2="170.9" y2="557.6" stroke="#0b5cad" stroke-width="1.6" marker-start="url(#arr)" marker-end="url(#arr)"/>
 <rect x="297.1" y="537.6" width="38" height="16" rx="3" fill="#fff" opacity="0.85"/><text x="315.9" y="550.6" font-size="12" font-weight="bold" fill="#0b5cad" text-anchor="middle" font-family="sans-serif">9.1 м</text>
 <line x1="460.8" y1="248.8" x2="306.8" y2="248.8" stroke="#0b5cad" stroke-width="1.6" marker-start="url(#arr)" marker-end="url(#arr)"/>

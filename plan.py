@@ -4,6 +4,8 @@ import math
 import os
 import sys
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))   # пути plan.svg и render3d/scene.json — от корня репозитория
+
 AB, BC, CD, DA, AREA = 30.7, 16.3, 24.2, 18.0, 450.0  # низ, дорога, верх, лево
 SETBACK = 3.0          # отступ дома от границ (по запросу)
 HOUSE_AREA = 105.0
@@ -103,7 +105,7 @@ TERRACES = [
     ("терраса", 14.0, 2.5, 15.5, 10.0),  # у дороги, во всю стену гостиной и кухни-столовой
     ("терраса", -2.0, 0.0, 0.0, 10.0),   # в сад, во всю стену мастер-спальни, коридора и спальни
 ]
-DOORS = [("вход", 14.0, 6.2, 14.75, 5.0), ("в сад", 0.0, 5.35, -1.0, 4.1)]
+DOORS = [("вход", 14.0, 6.2, 14.75, 5.0), ("в сад", 0.0, 5.5, -1.0, 4.25)]
 
 
 def overlap(p1, p2, gap=0.0):
@@ -425,7 +427,7 @@ el.append(f'<text x="20" y="{y0-30}" font-size="14" font-weight="bold" font-fami
 el.append(f'<text x="20" y="{y0+46}" font-size="13" fill="#0b5cad" font-family="sans-serif">синие размеры — расстояние от стены дома / края террасы до забора</text>')
 el.append(f'<text x="20" y="{y0+68}" font-size="13" fill="#555" font-family="sans-serif">зеркальный вариант: мастер-блок с южной стороны, жилая зона у дороги · парковка: 2 авто друг за другом вдоль северного забора, бетон от забора до дома, въезд через ворота · детская зона в юго-западном углу</text>')
 el.append("</svg>")
-open("plan.svg", "w").write("\n".join(el))
+open("plan.svg", "w", encoding="utf-8").write("\n".join(el))
 
 print("угол при A:", round(math.degrees(best_a), 1))
 print("участок:", [tuple(round(c, 2) for c in p) for p in P], "площадь", round(area(P), 1))
@@ -454,5 +456,5 @@ scene = {
     "shrubs": SHRUBS,
 }
 os.makedirs("render3d", exist_ok=True)
-with open("render3d/scene.json", "w") as f:
+with open("render3d/scene.json", "w", encoding="utf-8") as f:
     json.dump(scene, f, ensure_ascii=False, indent=1)

@@ -1,4 +1,5 @@
 <title>Участок на 1905 года</title>
+<link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap">
@@ -34,7 +35,7 @@
   .card {
     position: fixed; left: 16px; top: calc(env(safe-area-inset-top, 0px) + 16px);
     background: var(--panel); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; max-width: calc(100% - 32px);
+    border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; box-sizing: border-box; max-width: calc(100% - 32px);
   }
   .card h1 { font-size: 16px; font-weight: 700; margin: 0; letter-spacing: 0.01em; text-wrap: balance; }
   .card p { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -68,10 +69,11 @@
   .views button.walk { font-weight: 600; }
   .walkbar {
     position: fixed; left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top, 0px) + 16px);
-    display: flex; align-items: center; gap: 10px; max-width: calc(100% - 32px);
+    display: flex; align-items: center; gap: 10px; box-sizing: border-box; width: max-content; max-width: calc(100% - 32px);
     background: var(--panel); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--line); border-radius: 12px; padding: 8px 8px 8px 14px; font-size: 13px;
   }
+  .walkbar[hidden] { display: none; }
   .walkbar kbd { font: 600 11.5px/1 var(--num); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 2px 5px; background: var(--chip); }
   .walkbar button { font: inherit; font-weight: 600; border: 0; border-radius: 999px; padding: 7px 12px; background: var(--accent); color: var(--accent-ink); cursor: pointer; white-space: nowrap; }
   .walkbar button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -95,13 +97,13 @@
 <canvas id="c" aria-label="3D-модель участка"></canvas>
 <div class="loading" id="loading">Строю участок…</div>
 <div class="walkbar" id="walkbar" hidden>
-  <span id="walkHelp"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> идти · мышь — смотреть (клик по сцене) · <kbd>Shift</kbd> бегом</span>
+  <span id="walkHelp"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> идти · мышь — смотреть (клик по сцене) · <kbd>Shift</kbd> бегом · <kbd>Esc</kbd> — отпустить мышь</span>
   <button id="walkExit" type="button">Выйти</button>
 </div>
 <div class="crosshair" id="crosshair" hidden></div>
 <header class="card">
   <h1>Участок на ул. 1905 года</h1>
-  <p>Одинцово · 4.5 сот · дом 122.5 м² (7 модулей DP-Module) · парковка 6 × 5.7 м</p>
+  <p>Одинцово · 4.5 сот · дом 122.5 м² (7 модулей DP-Module) · парковка 14 × 3.3 м на 2 авто</p>
 </header>
 <div class="dock">
   <section class="sheet" aria-label="Управление видом">
@@ -157,6 +159,14 @@
       if (!on) { var g = document.querySelector('.views'); press(g, document.getElementById('v-aerial')); }
     });
     document.getElementById('walkExit').addEventListener('click', function () { if (window.plot3d) window.plot3d.walk(false); });
+    setTimeout(function () {                    // three.js не загрузился (нет интернета / CDN недоступен)
+      if (window.plot3d) return;
+      var el = document.getElementById('loading');
+      if (/^(localhost|127\.|192\.168\.|10\.)/.test(location.hostname) && !/local\.html$/.test(location.pathname)) {
+        el.innerHTML = 'Не удаётся загрузить three.js с CDN. Откройте <a href="local.html">офлайн-версию</a> (нужен npm install).';
+        el.style.pointerEvents = 'auto';
+      } else el.textContent = 'Не удаётся загрузить 3D. Проверьте интернет и обновите страницу.';
+    }, 20000);
     document.addEventListener('plot3d-ready', function () {
       document.getElementById('loading').hidden = true;
       applySun();
