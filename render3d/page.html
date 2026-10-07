@@ -1,0 +1,138 @@
+<title>Участок на 1905 года</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap">
+<style>
+  /* Layout: живая 3D-сцена на весь экран; сверху — табличка участка, снизу — пульт «ракурс + солнце». */
+  :root {
+    --bg: #dfe6ea;            /* фон до загрузки — цвет дымки над Подмосковьем */
+    --panel: rgba(250, 249, 245, 0.86);
+    --ink: #1f2522;           /* графит, как фасад дома */
+    --muted: #5d665f;
+    --line: rgba(31, 37, 34, 0.14);
+    --accent: #a8673a;        /* лиственница террасы */
+    --accent-ink: #fffaf3;
+    --chip: rgba(31, 37, 34, 0.06);
+    --font: "Golos Text", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    --num: "Golos Text", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #11161a; --panel: rgba(20, 25, 28, 0.84); --ink: #eef1ec; --muted: #a3ada6;
+      --line: rgba(238, 241, 236, 0.16); --accent: #d39363; --accent-ink: #1a120c; --chip: rgba(238, 241, 236, 0.08);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #11161a; --panel: rgba(20, 25, 28, 0.84); --ink: #eef1ec; --muted: #a3ada6;
+    --line: rgba(238, 241, 236, 0.16); --accent: #d39363; --accent-ink: #1a120c; --chip: rgba(238, 241, 236, 0.08);
+    color-scheme: dark;
+  }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font); overflow: hidden; }
+  #c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  .card {
+    position: fixed; left: 16px; top: calc(env(safe-area-inset-top, 0px) + 16px);
+    background: var(--panel); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; max-width: calc(100% - 32px);
+  }
+  .card h1 { font-size: 16px; font-weight: 700; margin: 0; letter-spacing: 0.01em; text-wrap: balance; }
+  .card p { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .dock {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    padding: 12px 16px calc(env(safe-area-inset-bottom, 0px) + 14px);
+    display: flex; justify-content: center; pointer-events: none;
+  }
+  .sheet {
+    pointer-events: auto; width: min(760px, 100%);
+    background: var(--panel); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; display: grid; gap: 10px;
+  }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+  .views { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 2px; }
+  .views::-webkit-scrollbar { display: none; }
+  .views button, .seg button {
+    font: inherit; font-size: 13.5px; font-weight: 500; color: var(--ink); background: var(--chip);
+    border: 1px solid transparent; border-radius: 999px; padding: 7px 12px; white-space: nowrap; cursor: pointer;
+  }
+  .views button[aria-pressed="true"], .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  .views button:focus-visible, .seg button:focus-visible, input[type=range]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .sun { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px 12px; }
+  .sun .row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; min-width: 0; }
+  .sun output { font-variant-numeric: tabular-nums; font-size: 13.5px; font-weight: 600; }
+  .sun small { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
+  .seg { display: flex; gap: 4px; }
+  .seg button { padding: 6px 10px; font-size: 12.5px; }
+  .hint { font-size: 12px; color: var(--muted); }
+  .loading[hidden] { display: none; }
+  .loading { position: fixed; inset: 0; display: grid; place-items: center; font-size: 14px; color: var(--muted); pointer-events: none; }
+  @media (max-width: 520px) {
+    .sun { grid-template-columns: 1fr; }
+    .card p { font-size: 12px; }
+  }
+</style>
+<canvas id="c" aria-label="3D-модель участка"></canvas>
+<div class="loading" id="loading">Строю участок…</div>
+<header class="card">
+  <h1>Участок на ул. 1905 года</h1>
+  <p>Одинцово · 4.5 сот · дом 122.5 м² (7 модулей DP-Module) · парковка 6 × 5.7 м</p>
+</header>
+<div class="dock">
+  <section class="sheet" aria-label="Управление видом">
+    <div class="views" role="group" aria-label="Ракурс">
+      <button id="v-aerial" data-view="aerial" aria-pressed="true">С дрона</button>
+      <button id="v-backyard" data-view="backyard" aria-pressed="false">Задний двор</button>
+      <button id="v-garden" data-view="garden" aria-pressed="false">У бассейна</button>
+      <button id="v-entry" data-view="entry" aria-pressed="false">Въезд</button>
+      <button id="v-street" data-view="street" aria-pressed="false">С улицы</button>
+      <button id="v-top" data-view="top" aria-pressed="false">План сверху</button>
+    </div>
+    <div class="sun">
+      <div>
+        <div class="row">
+          <span class="label">Солнце</span>
+          <span><output id="time">16:00</output> <small id="sunInfo"></small></span>
+        </div>
+        <input id="hour" type="range" min="5" max="21.5" step="0.25" value="16" aria-label="Время суток">
+      </div>
+      <div class="seg" role="group" aria-label="Месяц">
+        <button id="d-may" data-day="may" aria-pressed="false">Май</button>
+        <button id="d-june" data-day="june" aria-pressed="true">Июнь</button>
+        <button id="d-sept" data-day="sept" aria-pressed="false">Сентябрь</button>
+      </div>
+    </div>
+    <div class="hint">Крутите одним пальцем, приближайте двумя. Север — вверху на плане, улица — на востоке.</div>
+  </section>
+</div>
+<script>
+  (function () {
+    var day = 'june', hour = 16, pending = false;
+    var dirs = ['С', 'СВ', 'В', 'ЮВ', 'Ю', 'ЮЗ', 'З', 'СЗ'];
+    function fmt(h) { var m = Math.round((h % 1) * 60); return Math.floor(h) + ':' + (m < 10 ? '0' : '') + m; }
+    function applySun() {
+      pending = false;
+      if (!window.plot3d) return;
+      var r = window.plot3d.setSun(window.plot3d.DAY[day], hour);
+      document.getElementById('time').textContent = fmt(hour);
+      document.getElementById('sunInfo').textContent = r.alt > 0
+        ? 'высота ' + Math.round(r.alt) + '° · ' + dirs[Math.round(((r.az % 360) + 360) % 360 / 45) % 8]
+        : 'за горизонтом';
+    }
+    function queue() { if (!pending) { pending = true; requestAnimationFrame(applySun); } }
+    function press(group, btn) { group.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); }); }
+    document.addEventListener('plot3d-ready', function () {
+      document.getElementById('loading').hidden = true;
+      applySun();
+    });
+    document.querySelector('.views').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b || !window.plot3d) return;
+      press(this, b); window.plot3d.setView(b.dataset.view);
+    });
+    document.querySelector('.seg').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      press(this, b); day = b.dataset.day; queue();
+    });
+    document.getElementById('hour').addEventListener('input', function () { hour = parseFloat(this.value); queue(); });
+  })();
+</script>

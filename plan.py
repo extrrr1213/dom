@@ -1,5 +1,6 @@
 """Быстрая модель размещения дома (~105 м²) и парковки на 2 машины на участке 4.5 сот."""
 import math
+import os
 
 AB, BC, CD, DA, AREA = 30.7, 16.3, 24.2, 18.0, 450.0  # низ, дорога, верх, лево
 SETBACK = 3.0          # отступ дома от границ (по запросу)
@@ -424,3 +425,22 @@ print(f"дом {HOUSE_AREA:.1f} м²; до дороги {min(dist_to_line(p, B, 
       f"до левой {min(dist_to_line(p, D, A) for p in HOUSE):.2f}")
 print("террасы внутри пятна:", [all(inside(BUILD, c) for c in lrect(*t[1:])) for t in TERRACES], "внутри участка:", [all(inside(P, c) for c in lrect(*t[1:])) for t in TERRACES])
 print("сумма комнат:", sum(abs((r[3]-r[1])*(r[4]-r[2])) for r in ROOMS))
+
+# ---------- экспорт геометрии для 3D-визуализации (render3d/) ----------
+import json
+SHRUBS = [(-9.0, -1.6, 0.6), (-7.4, -1.6, 0.6), (-5.8, -1.6, 0.6), (1.5, -1.8, 0.6), (3.1, -1.8, 0.6),
+          (4.7, -1.8, 0.6), (16.8, -1.6, 0.6)]
+scene = {
+    "plot": [list(p) for p in P],
+    "road": {"B": list(B), "C": list(C)},
+    "north_deg": NORTH_DEG,
+    "house": {"x0": local(0, 0)[0], "y0": local(0, 0)[1], "outline": OUTLINE, "rooms": ROOMS, "blocks": HOUSE_BLOCKS},
+    "terraces": [list(t) for t in TERRACES],
+    "doors": DOORS,
+    "parking": [list(p) for p in PARK],
+    "leisure": LEISURE,
+    "shrubs": SHRUBS,
+}
+os.makedirs("render3d", exist_ok=True)
+with open("render3d/scene.json", "w") as f:
+    json.dump(scene, f, ensure_ascii=False, indent=1)
