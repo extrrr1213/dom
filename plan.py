@@ -363,6 +363,7 @@ el.append(f'<rect x="20" y="{y0-12}" width="28" height="0" stroke="#c0392b" stro
 el.append(f'<line x1="20" y1="{y0-5}" x2="50" y2="{y0-5}" stroke="#c0392b" stroke-dasharray="6 4" stroke-width="1.5"/>')
 el.append(f'<text x="58" y="{y0}" font-size="13" font-family="sans-serif">граница пятна застройки: отступ {SETBACK:g} м от всех границ</text>')
 el.append(f'<text x="20" y="{y0+24}" font-size="13" font-family="sans-serif">участок ≈{area(P):.0f} м² · дом {HOUSE_AREA:.1f} м² (7 модулей DP-Module) · террасы {TERR_AREA:.0f} м² · парковка {PARK_W*PARK_D:.0f} м² · двор/сад ≈{FREE:.0f} м² (в т.ч. бассейн, купель, площадки)</text>')
+el.append(f'<text x="20" y="{y0-30}" font-size="14" font-weight="bold" font-family="sans-serif">ИЖС, Одинцово, ул. 1905 года · ПЗЗ (обычно для ИЖС в МО): отступ 3 м, застройка ≤40% → дом {HOUSE_AREA/area(P)*100:.0f}%, с террасами {(HOUSE_AREA+TERR_AREA)/area(P)*100:.0f}% (уточнить по ГПЗУ)</text>')
 el.append(f'<text x="20" y="{y0+46}" font-size="13" fill="#0b5cad" font-family="sans-serif">синие размеры — расстояние от стены дома / края террасы до забора</text>')
 el.append("</svg>")
 open("plan.svg", "w").write("\n".join(el))
