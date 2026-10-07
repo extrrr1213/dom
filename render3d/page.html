@@ -65,6 +65,18 @@
   .seg { display: flex; gap: 4px; }
   .seg button { padding: 6px 10px; font-size: 12.5px; }
   .hint { font-size: 12px; color: var(--muted); }
+  .views button.walk { font-weight: 600; }
+  .walkbar {
+    position: fixed; left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top, 0px) + 16px);
+    display: flex; align-items: center; gap: 10px; max-width: calc(100% - 32px);
+    background: var(--panel); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--line); border-radius: 12px; padding: 8px 8px 8px 14px; font-size: 13px;
+  }
+  .walkbar kbd { font: 600 11.5px/1 var(--num); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 2px 5px; background: var(--chip); }
+  .walkbar button { font: inherit; font-weight: 600; border: 0; border-radius: 999px; padding: 7px 12px; background: var(--accent); color: var(--accent-ink); cursor: pointer; white-space: nowrap; }
+  .walkbar button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  body.walking .card, body.walking .dock { display: none; }
+  .crosshair { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(255,255,255,.85); box-shadow: 0 0 0 1px rgba(0,0,0,.35); pointer-events: none; }
   .loading[hidden] { display: none; }
   .loading { position: fixed; inset: 0; display: grid; place-items: center; font-size: 14px; color: var(--muted); pointer-events: none; }
   @media (max-width: 520px) {
@@ -82,6 +94,11 @@
 </style>
 <canvas id="c" aria-label="3D-модель участка"></canvas>
 <div class="loading" id="loading">Строю участок…</div>
+<div class="walkbar" id="walkbar" hidden>
+  <span id="walkHelp"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> идти · мышь — смотреть (клик по сцене) · <kbd>Shift</kbd> бегом</span>
+  <button id="walkExit" type="button">Выйти</button>
+</div>
+<div class="crosshair" id="crosshair" hidden></div>
 <header class="card">
   <h1>Участок на ул. 1905 года</h1>
   <p>Одинцово · 4.5 сот · дом 122.5 м² (7 модулей DP-Module) · парковка 6 × 5.7 м</p>
@@ -95,6 +112,7 @@
       <button id="v-entry" data-view="entry" aria-pressed="false">Въезд</button>
       <button id="v-street" data-view="street" aria-pressed="false">С улицы</button>
       <button id="v-top" data-view="top" aria-pressed="false">План сверху</button>
+      <button id="v-walk" data-view="walk" aria-pressed="false" class="walk">Прогулка</button>
     </div>
     <div class="sun">
       <div>
@@ -129,6 +147,16 @@
     }
     function queue() { if (!pending) { pending = true; requestAnimationFrame(applySun); } }
     function press(group, btn) { group.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); }); }
+    var touch = matchMedia('(pointer: coarse)').matches;
+    if (touch) document.getElementById('walkHelp').textContent = 'Левый палец — идти, правый — смотреть по сторонам';
+    document.addEventListener('plot3d-walk', function (e) {
+      var on = e.detail;
+      document.getElementById('walkbar').hidden = !on;
+      document.getElementById('crosshair').hidden = !on || touch;
+      document.body.classList.toggle('walking', on);
+      if (!on) { var g = document.querySelector('.views'); press(g, document.getElementById('v-aerial')); }
+    });
+    document.getElementById('walkExit').addEventListener('click', function () { if (window.plot3d) window.plot3d.walk(false); });
     document.addEventListener('plot3d-ready', function () {
       document.getElementById('loading').hidden = true;
       applySun();

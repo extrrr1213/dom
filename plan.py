@@ -441,9 +441,6 @@ print("террасы внутри пятна:", [all(inside(BUILD, c) for c in 
 print("сумма комнат:", sum(abs((r[3]-r[1])*(r[4]-r[2])) for r in ROOMS))
 
 # ---------- экспорт геометрии для 3D-визуализации (render3d/) ----------
-# 3D пока не обновляем (render3d/scene.js рассчитан на вариант с парковкой) — экспорт только по флагу --3d
-if "--3d" not in sys.argv:
-    sys.exit()
 import json
 scene = {
     "plot": [list(p) for p in P],

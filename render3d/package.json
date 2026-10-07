@@ -1,0 +1,19 @@
+{
+  "name": "uchastok-3d",
+  "private": true,
+  "type": "module",
+  "description": "3D-модель участка ИЖС (Одинцово, ул. 1905 года) с прогулкой от первого лица",
+  "scripts": {
+    "start": "node build.mjs && node serve.mjs",
+    "build": "node build.mjs",
+    "serve": "node serve.mjs",
+    "geometry": "cd .. && python3 plan.py",
+    "render": "node render.mjs http://localhost:5173/dist/render.html renders aerial:16:june:1600:1000 backyard:18:june:1600:1000 garden:19:june:1600:1000 entry:16:june:1600:1000 street:11:june:1600:1000 top:13:june:1200:1200 walk:17:june:1600:1000"
+  },
+  "dependencies": {
+    "three": "0.160.0"
+  },
+  "devDependencies": {
+    "playwright-core": "1.56.1"
+  }
+}

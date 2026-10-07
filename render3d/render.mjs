@@ -1,10 +1,14 @@
 // Рендер кадров 3D-сцены в PNG через headless Chromium (WebGL на SwiftShader).
-// node render.mjs <url-базы> <папка-вывода> view:hour[:day] ...
+// node render.mjs <url-страницы> <папка-вывода> view:hour[:day[:w:h]] ...   (нужен запущенный serve.mjs и npm install)
 import { chromium } from 'playwright-core';
+import { existsSync, mkdirSync } from 'node:fs';
 
 const [base, outDir, ...shots] = process.argv.slice(2);
+mkdirSync(outDir, { recursive: true });
+const CLOUD_CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const browser = await chromium.launch({
-  executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
+  executablePath: process.env.CHROME_PATH || (existsSync(CLOUD_CHROME) ? CLOUD_CHROME : undefined),
+  channel: process.env.CHROME_PATH || existsSync(CLOUD_CHROME) ? undefined : 'chrome',
   args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
 });
 for (const shot of shots) {
