@@ -82,11 +82,9 @@ park_s += 0.5
 PARK = rect(park_s, 0, PARK_W, PARK_D)
 
 best = None
-for w10 in range(70, 151, 5):            # ширина дома вдоль дороги 7..15 м
-    w = w10 / 10
-    h = round(HOUSE_AREA / w, 2)
-    if not 7 <= h <= 15:
-        continue
+# DP-Module «Модерн 105»: 14 × 7.5 м, 6 модулей 7 × 2.5 м
+HOUSE_L, HOUSE_W = 14.0, 7.5
+for w, h in [(HOUSE_W, HOUSE_L), (HOUSE_L, HOUSE_W)]:  # (вдоль дороги, вглубь участка)
     for si in range(0, 200):
         s = si * 0.1
         for ti in range(30, 250):
@@ -104,10 +102,35 @@ for w10 in range(70, 151, 5):            # ширина дома вдоль до
 _, hs, ht, hw, hh = best
 HOUSE = rect(hs, ht, hw, hh)
 
+
+def local(X, Y):
+    """Локальные координаты дома: X — вдоль длинной стороны (0 = дальний от дороги торец), Y — поперёк."""
+    if hh > hw:  # длинная сторона вглубь участка
+        return to_xy(hs + Y, ht + (HOUSE_L - X))
+    return to_xy(hs + X, ht + Y)
+
+
+def lrect(x0, y0, x1, y1):
+    return [local(x0, y0), local(x1, y0), local(x1, y1), local(x0, y1)]
+
+
+# Реконструкция планировки «Модерн 105» (комнаты из описания DP-Module, размеры ориентировочные)
+ROOMS = [
+    ("Спальня 1", 0.0, 3.75, 3.8, 7.5, "#dfe9f5"),
+    ("Спальня 2", 0.0, 0.0, 3.8, 3.75, "#dfe9f5"),
+    ("Детская", 3.8, 4.5, 7.0, 7.5, "#f6e0ea"),
+    ("Коридор", 3.8, 2.8, 7.0, 4.5, "#eeeeee"),
+    ("Санузел", 3.8, 0.0, 7.0, 2.8, "#d6f0ee"),
+    ("Прихожая", 7.0, 0.0, 9.5, 3.0, "#eeeeee"),
+    ("Кухня-столовая", 9.5, 0.0, 14.0, 3.0, "#fde7c4"),
+    ("Гостиная", 7.0, 3.0, 14.0, 7.5, "#fbf1d6"),
+]
+TERRACE = lrect(9.0, 7.5, 14.0, 10.0)  # выход из гостиной, внутри пятна застройки
+
 # ---------- SVG ----------
 xs = [p[0] for p in P]; ys = [p[1] for p in P]
 minx, maxx, miny, maxy = min(xs) - 4, max(xs) + 8, min(ys) - 4, max(ys) + 4
-SC = 22
+SC = 32
 
 
 def sv(p):
@@ -133,6 +156,22 @@ def centroid(pts):
     return (sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts))
 
 
+ROOMS_SVG = []
+for name, x0, y0, x1, y1, col in ROOMS:
+    pts = lrect(x0, y0, x1, y1)
+    ROOMS_SVG.append(poly_svg(pts, fill=col, stroke="#6b4f1d", stroke_width=1.2))
+for name, x0, y0, x1, y1, col in ROOMS:
+    c = centroid(lrect(x0, y0, x1, y1))
+    a = abs((x1 - x0) * (y1 - y0))
+    fs = 11 if a > 12 else 9
+    ROOMS_SVG.append(text(c, name, fs, font_weight="bold"))
+    ROOMS_SVG.append(text((c[0], c[1] - 0.6), f"{a:.1f} м²", fs - 1))
+# входная дверь
+d = centroid(lrect(7.6, -0.2, 8.9, 0.2))
+dx, dy = sv(d)
+ROOMS_SVG.append(f'<circle cx="{dx:.1f}" cy="{dy:.1f}" r="5" fill="#c0392b"/>')
+ROOMS_SVG.append(text((d[0], d[1] - 1.0), "вход", 10, fill="#c0392b", font_weight="bold"))
+
 W, H = (maxx - minx) * SC, (maxy - miny) * SC + 70
 el = [
     f'<svg xmlns="http://www.w3.org/2000/svg" width="{W:.0f}" height="{H:.0f}" viewBox="0 0 {W:.0f} {H:.0f}">',
@@ -140,9 +179,10 @@ el = [
     poly_svg(P, fill="#9caf5a", stroke="#3d4a1c", stroke_width=2),
     poly_svg(BUILD, fill="none", stroke="#c0392b", stroke_width=1.5, stroke_dasharray="6 4"),
     poly_svg(PARK, fill="#bdbdbd", stroke="#555", stroke_width=1.5),
-    poly_svg(HOUSE, fill="#e8d3a9", stroke="#6b4f1d", stroke_width=2.5),
-    text(centroid(HOUSE), f"ДОМ {hw:g}×{hh:g} м", 15, font_weight="bold"),
-    text((centroid(HOUSE)[0], centroid(HOUSE)[1] - 1.0), f"≈{hw*hh:.0f} м²", 13),
+    poly_svg(TERRACE, fill="#c9a36b", stroke="#6b4f1d", stroke_width=1.5),
+    text(centroid(TERRACE), "терраса", 10),
+    poly_svg(HOUSE, fill="#f3e6c8", stroke="#6b4f1d", stroke_width=3),
+    *ROOMS_SVG,
     text(centroid(PARK), "P · 2 авто", 13, font_weight="bold"),
     text((centroid(PARK)[0], centroid(PARK)[1] - 1.0), f"{PARK_W:g}×{PARK_D:g} м", 11),
     text(mid(A, B, -1.5), f"{AB} м", 14),
@@ -155,7 +195,7 @@ mx, my = sv(mid(B, C)); el[-1] = f'<text x="{mx+38:.1f}" y="{my:.1f}" font-size=
 # стрелка въезда
 e1 = sv(to_xy(park_s + PARK_W / 2, -2.5)); e2 = sv(to_xy(park_s + PARK_W / 2, 0.5))
 el.append(f'<line x1="{e1[0]:.1f}" y1="{e1[1]:.1f}" x2="{e2[0]:.1f}" y2="{e2[1]:.1f}" stroke="#222" stroke-width="2.5"/><circle cx="{e2[0]:.1f}" cy="{e2[1]:.1f}" r="4"/>')
-garden = centroid([A, D, HOUSE[3], HOUSE[0]])
+garden = ((A[0] + D[0]) / 2 + 5, (A[1] + D[1]) / 2 - 4)
 el.append(text(garden, "сад / двор", 15, fill="#2f3b12", font_style="italic"))
 y0 = (maxy - miny) * SC + 25
 el.append(f'<rect x="20" y="{y0-12}" width="28" height="0" stroke="#c0392b" stroke-dasharray="6 4" stroke-width="1.5"/>')
