@@ -363,7 +363,7 @@ function canopy(cxp, cyp, h, rx, ry, rz, n, size, { kind = 'leaf', tint = 0xffff
   inst.castShadow = true; inst.receiveShadow = true; scene.add(inst);
   if (core) {
     const s = new THREE.Mesh(new THREE.SphereGeometry(1, 18, 12), new THREE.MeshStandardMaterial({ color: core, roughness: 1 }));
-    s.scale.set(rx * 0.72, ry * 0.72, rz * 0.72); s.position.copy(c); s.castShadow = true; s.receiveShadow = true; scene.add(s);
+    s.scale.set(rx * 0.55, ry * 0.55, rz * 0.55); s.position.copy(c); s.castShadow = true; s.receiveShadow = true; scene.add(s);
   }
 }
 function bush(px, py, r, h, color = 0x3f6b2a) {
@@ -394,7 +394,7 @@ function tree(px, py, { h = 7, r = 2.6, birch = false, color = 0x4c7a2c, willow 
     for (let i = 0; i < 7; i++) {
       const a = rnd() * 6.28, d = i === 0 ? 0 : rr(0.2, 0.45) * r, cr = r * rr(0.45, 0.62);
       canopy(px + Math.cos(a) * d, py + Math.sin(a) * d, h * 0.32 + r * (0.3 + i * 0.35), cr, cr * 1.3, cr,
-        Math.round(cr * cr * 80 + 60), 0.5, { kind, tint, core: new THREE.Color(color).multiplyScalar(0.5), droop: r * 0.3 });
+        Math.round(cr * cr * 140 + 80), 0.5, { kind, tint, core: 0, droop: r * 0.3 });
     }
     return;
   }
@@ -403,7 +403,7 @@ function tree(px, py, { h = 7, r = 2.6, birch = false, color = 0x4c7a2c, willow 
     const a = rnd() * 6.28, d = i === 0 ? 0 : rr(0.35, 0.6) * r;
     const cr = r * (i === 0 ? 0.75 : rr(0.45, 0.6));
     canopy(px + Math.cos(a) * d, py + Math.sin(a) * d, trunkH + r * (i === 0 ? 0.75 : rr(0.4, 1.0)), cr, cr * (willow ? 1.2 : 0.85), cr,
-      Math.round(cr * cr * 70 + 60), birch ? 0.5 : 0.6, { kind, tint, core: new THREE.Color(color).multiplyScalar(0.5), droop: willow ? r * 0.5 : 0 });
+      Math.round(cr * cr * 70 + 60), birch ? 0.5 : 0.6, { kind, tint, core: new THREE.Color(color).multiplyScalar(0.3), droop: willow ? r * 0.5 : 0 });
   }
 }
 
@@ -595,7 +595,7 @@ boxL(path[0], path[1], path[2], path[3], 0, 0.04, M.pavers, 1);
 function car(px, py, color, headingDeg) {
   const g = new THREE.Group();
   const body = new THREE.MeshPhysicalMaterial({ color, metalness: 0.0, roughness: 0.35, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 0.55 });
-  const glassC = new THREE.MeshPhysicalMaterial({ color: 0x11161b, roughness: 0.05, metalness: 0.2, clearcoat: 1 });
+  const glassC = new THREE.MeshPhysicalMaterial({ color: 0x11161b, roughness: 0.05, metalness: 0.2, clearcoat: 1, envMapIntensity: 0.5 });
   const m = (geo, mat, x, y, z) => { const o = new THREE.Mesh(geo, mat); o.position.set(x, y, z); o.castShadow = o.receiveShadow = true; g.add(o); return o; };
   // силуэт кроссовера сбоку (нос — к −X), выдавлен по ширине со скруглением
   const prof = [[-2.3, 0.38], [-2.32, 0.72], [-2.18, 0.86], [-1.3, 0.98], [-0.85, 1.04], [-0.2, 1.52], [1.35, 1.54], [1.95, 1.18],
@@ -623,6 +623,7 @@ function car(px, py, color, headingDeg) {
   [0.93, -0.93].forEach(z => m(new THREE.BoxGeometry(0.2, 0.1, 0.14), body, -0.7, 1.12, z));   // зеркала
   m(new THREE.BoxGeometry(0.04, 0.13, 0.52), M.black, -2.42, 0.52, 0);          // номер
   m(new THREE.BoxGeometry(0.06, 0.18, 1.5), archM, -2.38, 0.42, 0);             // нижняя решётка/бампер
+  m(new THREE.BoxGeometry(0.04, 0.12, 0.52), M.black, 2.42, 0.62, 0); m(new THREE.BoxGeometry(0.08, 0.2, 1.7), archM, 2.38, 0.45, 0);   // задний номер и бампер
   const sh = new THREE.Mesh(new THREE.PlaneGeometry(5.0, 2.2), new THREE.MeshBasicMaterial({ color: 0, map: T.blob, transparent: true, opacity: 0.75, depthWrite: false }));
   sh.rotation.x = -Math.PI / 2; sh.position.y = 0.056; g.add(sh);
   g.position.copy(V(px, py, 0)); g.rotation.y = THREE.MathUtils.degToRad(headingDeg);
@@ -649,6 +650,7 @@ function car(px, py, color, headingDeg) {
   // поручень-лестница
   const lp = [x1 - 0.05, y0 + 0.9];
   [0, 0.5].forEach(o => { cyl(lp[0], lp[1] + o, -0.6, 0.75, 0.025, M.steel, 10); });
+  [0, 0.5].forEach(o => { const arc = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.025, 8, 16, Math.PI), M.steel); arc.position.copy(V(lp[0] + 0.2, lp[1] + o, 0.75)); add(arc); cyl(lp[0] + 0.4, lp[1] + o, 0.07, 0.75, 0.025, M.steel, 10); });
   // лежаки и зонт на газоне у бассейна
   [[-6.6, 2.9], [-6.6, 4.4]].forEach(([a, b]) => {
     const p = L(a, b);
@@ -759,7 +761,7 @@ function spruce(px, py, h = 18) {                  // ель — типичны�
 // камыш у ручья — куртинами, и прибрежные кусты
 {
   const reedM = new THREE.MeshStandardMaterial({ color: 0x8c9a58, roughness: 1 });
-  const geo = new THREE.ConeGeometry(0.025, 1.5, 4); const N = 1400; const inst = new THREE.InstancedMesh(geo, reedM, N);
+  const geo = new THREE.ConeGeometry(0.025, 1.5, 4); geo.translate(0, 0.75, 0); const N = 1400; const inst = new THREE.InstancedMesh(geo, reedM, N);
   const dummy = new THREE.Object3D(), col = new THREE.Color(); let k = 0;
   while (k < N) {
     const i = Math.floor(rnd() * (STREAM.length - 1)), a = STREAM[i], b = STREAM[i + 1], t = rnd();
@@ -767,13 +769,13 @@ function spruce(px, py, h = 18) {                  // ель — типичны�
     const qx = a[0] + dx * t + (-dy / l) * off, qy = a[1] + dy * t + (dx / l) * off, n = Math.floor(rr(12, 45));
     for (let j = 0; j < n && k < N; j++) {
       const r = rr(0, 0.7), th = rr(0, 6.28);
-      dummy.position.copy(V(qx + Math.cos(th) * r, qy + Math.sin(th) * r, 0.65)); dummy.rotation.set(rr(-0.2, 0.2), 0, rr(-0.2, 0.2));
+      dummy.position.copy(V(qx + Math.cos(th) * r, qy + Math.sin(th) * r, -0.02)); dummy.rotation.set(rr(-0.2, 0.2), 0, rr(-0.2, 0.2));
       dummy.scale.set(1, rr(0.5, 1.15), 1); dummy.updateMatrix(); inst.setMatrixAt(k, dummy.matrix);
       col.setHSL(rr(0.15, 0.22), rr(0.3, 0.45), rr(0.32, 0.48)); inst.setColorAt(k, col); k++;
     }
   }
   inst.castShadow = true; scene.add(inst);
-  [[-13.5, -12], [-11.5, 3], [-9.2, 18], [-7, 40], [-16.5, -30]].forEach(([x, y]) => bush(x, y, rr(0.9, 1.4), 0.8, 0x56742f));
+  [[-15.5, -12], [-14, 3], [-12, 18], [-9.5, 40], [-18.5, -30]].forEach(([x, y]) => bush(x, y, rr(0.9, 1.4), 0.8, 0x56742f));
 }
 
 // ---------- заборы ----------
@@ -879,9 +881,9 @@ neighborHouse(-20, 32, 9, 7, 3.2, 3.4, 0xe2d0b4, 0x6d2a1f, 0.3, 1);
 {
   const walls = [0xe8dcc4, 0xd3dde0, 0xf1e7cf, 0xc9b9a0, 0xdfe6d8, 0xe9e2d6], roofs = [0x7b2e22, 0x2f3c4c, 0x3d4f3b, 0x5a3b2c, 0x6b6e70];
   // дальше по нашей стороне улицы и напротив — дома каждые ~24 м
-  [-58, -34, 52, 76].forEach((sOff, i) => { const p = along(B, sOff, -12); neighborHouse(p[0], p[1], rr(8, 10), rr(7, 9), rnd() < 0.5 ? 3.0 : 5.5, rr(2.8, 3.6), walls[i % 6], roofs[i % 5], 0, rnd() < 0.5 ? 1 : 2); });
+  [-58, -40, 52, 76].forEach((sOff, i) => { const p = along(B, sOff, -12); neighborHouse(p[0], p[1], rr(8, 10), rr(7, 9), rnd() < 0.5 ? 3.0 : 5.5, rr(2.8, 3.6), walls[i % 6], roofs[i % 5], 0, rnd() < 0.5 ? 1 : 2); });
   [-50, -26, 48, 72, 96].forEach((sOff, i) => { const p = along(B, sOff, 21); neighborHouse(p[0], p[1], rr(8, 10), rr(7, 9), rnd() < 0.5 ? 3.0 : 5.5, rr(2.8, 3.6), walls[(i + 3) % 6], roofs[(i + 2) % 5], Math.PI / 2, rnd() < 0.5 ? 1 : 2); });
-  [[-30, -32], [40, -30], [-40, 60], [30, 55], [70, -40], [-55, 0]].forEach(([x, y], i) => neighborHouse(x, y, rr(8, 11), rr(7, 9), 3.1, rr(3, 3.8), walls[(i + 1) % 6], roofs[i % 5], rr(-0.2, 0.2), 1));
+  [[-30, -32], [54, -40], [-40, 60], [8, 63], [70, -40], [-55, 0]].forEach(([x, y], i) => neighborHouse(x, y, rr(8, 11), rr(7, 9), 3.1, rr(3, 3.8), walls[(i + 1) % 6], roofs[i % 5], rr(-0.2, 0.2), 1));
   [[-30, 45], [62, 50], [-45, -38], [75, 10], [35, -45], [8, 52]].forEach(([x, y]) => tree(x, y, { h: rr(9, 13), r: rr(2.6, 3.6), birch: rnd() < 0.3, color: rnd() < 0.5 ? 0x47702a : 0x5a8530 }));
 }
 // хозпостройки соседей: теплицы из поликарбоната и сараи
@@ -899,7 +901,7 @@ function shed(px, py, rot = 0) {
   g.traverse(o => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; } });
   g.position.copy(V(px, py, 0)); g.rotation.y = rot; scene.add(g);
 }
-greenhouse(4, -21, 0.05); shed(20, -24, 0); greenhouse(10, 34, 0); shed(28, 31, 0); greenhouse(52, 30, Math.PI / 2); shed(-28, 38, 0.3);
+greenhouse(4, -21, 0.05); shed(20, -24, 0); greenhouse(10, 34, 0); shed(28, 31, 0); greenhouse(53, 33, Math.PI / 2); shed(-28, 38, 0.3);
 // дальний лес: кольцо-задник с нарисованным силуэтом крон (вместо гладких сфер)
 {
   const W = 2048, H = 144;                         // 377 м на тайл по окружности → ~0.18 м/пкс по обеим осям
@@ -921,7 +923,7 @@ greenhouse(4, -21, 0.05); shed(20, -24, 0); greenhouse(10, 34, 0); shed(28, 31, 
 {
   const profM = new THREE.MeshStandardMaterial({ map: rep(T.metalRoof, 1, 1), color: 0x6b4a33, roughness: 0.5, metalness: 0.4, side: THREE.DoubleSide });
   const PROF = [0x4a3328, 0x1f4a32, 0x6e2a22, 0x8d9196, 0x5a3b2c, 0x2f3c4c].map(c => new THREE.MeshStandardMaterial({ map: rep(T.metalRoof, 1, 1), color: c, roughness: 0.5, metalness: 0.4, side: THREE.DoubleSide }));
-  const gates = [-50, -26, 4, 25, 48, 72];
+  const gates = [-50, -26, 14, 36, 48, 72];
   let s0 = -62;
   gates.concat([96]).forEach((gs, i) => {
     const g0 = Math.min(gs - 2.3, 96), g1 = gs + 2.3;
@@ -995,7 +997,7 @@ greenhouse(4, -21, 0.05); shed(20, -24, 0); greenhouse(10, 34, 0); shed(28, 31, 
   };
   lot(7.3, 16.6, 31.8, 40, 0, 's');      // север (общий забор — наша сетка)
   lot(-2, -30, 30.6, -0.15, 1, 'ne');    // юг (уличную сторону не ставим — закрывает вид с улицы)
-  lot(-34, 22, -8, 44, 2);               // за ручьём
+  lot(-34, 22, -13, 44, 2);               // за ручьём
 }
 // ---------- небо, солнце (Одинцово 55.68° с.ш., 37.32° в.д., UTC+3) ----------
 const sky = new Sky(); sky.scale.setScalar(4500); scene.add(sky);
@@ -1102,6 +1104,7 @@ function fitFov(vfov) {                              // на вертикаль�
   return Math.min(88, THREE.MathUtils.radToDeg(2 * Math.atan(t)));
 }
 function setView(name) {
+  const dmp = controls.enableDamping; controls.enableDamping = false; controls.update(); controls.enableDamping = dmp;
   const v = VIEWS[name] || VIEWS.aerial; viewEV = v.ev || 0; applyExposure(); currentView = name;
   camera.fov = fitFov(v.fov); camera.position.copy(V(v.pos[0], v.pos[1], v.pos[2]));
   controls.target.copy(V(v.target[0], v.target[1], v.target[2]));
@@ -1151,9 +1154,12 @@ if (HQ) {
   composer.render();
   requestAnimationFrame(() => { composer.render(); window.__ready = true; });
 } else {
-  controls.addEventListener('change', () => { dirty = true; });
-  renderer.setAnimationLoop(() => {               // рисуем только когда что-то изменилось — бережём батарею телефона
-    if (controls.update() || dirty) { renderer.render(scene, camera); dirty = false; }
+  const lp = new THREE.Vector3(), lq = new THREE.Quaternion();
+  renderer.setAnimationLoop(() => {               // рисуем только при видимом движении камеры — бережём батарею телефона
+    controls.update();
+    if (dirty || lp.distanceToSquared(camera.position) > 1e-6 || 8 * (1 - Math.abs(lq.dot(camera.quaternion))) > 1e-6) {
+      lp.copy(camera.position); lq.copy(camera.quaternion); renderer.render(scene, camera); dirty = false;
+    }
   });
   window.__ready = true;
 }
