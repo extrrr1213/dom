@@ -4,7 +4,7 @@ import math
 AB, BC, CD, DA, AREA = 30.7, 16.3, 24.2, 18.0, 450.0  # низ, дорога, верх, лево
 SETBACK = 3.0          # отступ дома от границ (по запросу)
 HOUSE_AREA = 105.0
-PARK_W, PARK_D = 5.5, 5.5  # 2 машины рядом: 2×2.75 × 5.5 м
+PARK_W, PARK_D = 5.2, 5.5  # 2 машины рядом: 2 места по 2.6 × 5.5 м
 
 
 def shape(a):
@@ -74,11 +74,12 @@ def rect(s, t, w, h):
     return [to_xy(s, t), to_xy(s + w, t), to_xy(s + w, t + h), to_xy(s, t + h)]
 
 
-# парковка: у дороги, у нижнего угла (въезд с дороги)
-park_s = 0.0
-while not all(inside(P, c) for c in rect(park_s, 0, PARK_W, PARK_D)):
-    park_s += 0.1
-park_s += 0.5
+# парковка: у дороги, в верхнем углу — в нише над санузлом/гостиной (въезд с дороги)
+PARK_MARGIN = 0.1  # до забора
+park_s = BC - PARK_W
+while not all(inside(P, c) for c in rect(park_s, 0, PARK_W, PARK_D)) and park_s > 0:
+    park_s -= 0.05
+park_s -= PARK_MARGIN
 PARK = rect(park_s, 0, PARK_W, PARK_D)
 
 # DP-Module «Модерн 105»: 14 × 7.5 м (6 модулей 7 × 2.5 м) + 1 модуль 7 × 2.5 м под мастер-спальню.
@@ -140,9 +141,8 @@ for yi in range(30, 80):
         road_t, garden_t = ([loc(x0, b0), loc(x1, b0), loc(x1, b1), loc(x0, b1)] for _, x0, b0, x1, b1 in TERRACES)
         if (all(inside(BUILD, loc(*p)) for p in OUTLINE)
                 and all(inside(BUILD, c) for c in road_t)
-                and all(inside(P, c) for c in garden_t)
-                and not any(overlap(bl, PARK, 1.0) for bl in blocks)
-                and not overlap(road_t, PARK)):  # терраса может примыкать к парковке
+                and all(inside(BUILD, c) for c in garden_t)
+                and not any(overlap(bl, PARK, 0.25) for bl in blocks + [road_t])):
             if best is None or xe > best[0]:
                 best = (xe, y0)
             break
@@ -232,8 +232,8 @@ DIMS = [  # (точка в координатах дома, направлени
     ((3.0, 0.0), (0, -1)),     # спальни -> нижний забор
     ((11.0, 0.0), (0, -1)),    # кухня -> нижний забор
     ((2.0, 10.0), (0, 1)),     # мастер-блок -> верхний забор
-    ((11.5, 7.5), (0, 1)),     # гостиная -> верхний забор
-    ((15.5, 7.2), (1, 0)),     # терраса у дороги -> забор у дороги
+    ((15.5, 2.0), (1, 0)),     # терраса у дороги -> забор у дороги
+    ((9.0, 7.5), (0, 1)),      # ниша над санузлом -> верхний забор
 ]
 DIM_SVG = []
 for (X, Y), d in DIMS:
