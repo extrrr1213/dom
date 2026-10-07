@@ -1,4 +1,5 @@
-"""Быстрая модель размещения дома (~105 м²) на участке 4.5 сот. Зеркальный вариант: доп. модуль с южной стороны, парковку пока не ставим."""
+"""Быстрая модель размещения дома (~105 м²) и парковки на 2 машины на участке 4.5 сот.
+Зеркальный вариант: доп. модуль с южной стороны, парковка — 2 авто друг за другом вдоль северного забора."""
 import math
 import os
 import sys
@@ -162,6 +163,15 @@ def line_y_at_x(p, q, x):
     return p[1] + (q[1] - p[1]) * (x - p[0]) / (q[0] - p[0])
 
 
+# парковка: 2 авто друг за другом вдоль северного забора; бетон от забора до стены дома, от ворот на улице
+PARK_L = 11.0                                    # 2 места по 5.5 м
+park_y0 = HY0 + 10.0                             # северная стена дома (и край террасы у дороги)
+park_x1 = line_x_at_y(B, C, park_y0)             # ворота — в заборе у дороги
+park_x0 = park_x1 - PARK_L
+PARK = [(park_x0, park_y0), (park_x1, park_y0), C, (park_x0, line_y_at_x(C, D, park_x0))]
+PARK_W = min(C[1], line_y_at_x(C, D, park_x0)) - park_y0
+print(f"парковка {PARK_L:g} × {PARK_W:.2f} м = {area(PARK):.1f} м² (2 места по {PARK_L / 2:g} м друг за другом)")
+
 # ---------- SVG ----------
 xs = [p[0] for p in P]; ys = [p[1] for p in P]
 minx, maxx, miny, maxy = min(xs) - 4, max(xs) + 8, min(ys) - 4, max(ys) + 4
@@ -237,9 +247,9 @@ def ray_to_fence(p, d):
 
 
 DIMS = [  # (точка в координатах дома, направление[, подпись снизу]) — от стены/террасы до забора
-    ((-2.0, 0.05), (-1, 0), True),  # сад-терраса, низ
+    ((-2.0, 0.05), (-1, 0)),   # сад-терраса, низ
     ((-2.0, 9.7), (-1, 0)),    # сад-терраса, верх
-    ((4.0, 0.0), (0, -1)),     # мастер-блок -> нижний забор
+    ((5.4, 0.0), (0, -1)),     # мастер-блок -> нижний забор
     ((6.2, 10.0), (0, 1)),     # спальни -> верхний забор
     ((15.5, 9.0), (1, 0)),     # терраса у дороги -> забор у дороги
 ]
@@ -275,8 +285,8 @@ LEISURE = {
     "pool": (-4.9, 3.6, -2.4, 8.6),      # бассейн 2.5 × 5 м у садовой террасы
     "tub": (-3.4, 1.7, 1.0),             # купель Ø2 м у мастер-спальни (центр X, Y, радиус)
     "sport": (7.3, -3.0, 18.0, 2.2),     # спортплощадка в нише на юго-востоке (под гостиной/санузлом)
-    "sand": (8.0, 10.5, 10.0, 12.5),     # песочница 2 × 2 м под окнами кухни
-    "swing": (10.6, 10.5, 13.4, 12.6),   # качели/горка
+    "sand": (-6.8, -2.9, -4.8, -0.9),    # песочница 2 × 2 м — в юго-западном углу сада
+    "swing": (-10.2, -2.9, -7.4, -0.8),  # качели/горка — там же
     "path": (15.5, 6.0, 19.9, 7.2),      # дорожка от калитки ко входу
 }
 HX0 = xe - HOUSE_L  # x торца дома в саду
@@ -289,9 +299,10 @@ x0, y0_, x1, y1 = LEISURE["path"]
 LS.append(lrect_svg(x0, y0_, x1, y1, fill="#d9d4c7", stroke="#9a927e", stroke_width=1))
 gx, gy = local(x1 - 0.4, (y0_ + y1) / 2)
 LS.append(text(local(x1 - 1.0, y1 + 0.35), "калитка", 9, fill="#4a4434", font_weight="bold"))
-# кустарник / живая изгородь: у южного забора в саду и у северного под спальнями (высокие деревья — не ближе 4 м к соседу)
-SHRUBS = [(-9.0, -1.9, 0.6), (-7.4, -1.9, 0.6), (-5.8, -1.9, 0.6), (1.5, 11.8, 0.6), (3.1, 11.8, 0.6),
-          (4.7, 11.8, 0.6), (16.8, 11.6, 0.6)]
+# кустарник / живая изгородь: у южного забора под мастер-спальней и у северного под спальнями
+# (высокие деревья — не ближе 4 м к соседу)
+SHRUBS = [(0.8, -1.9, 0.6), (2.4, -1.9, 0.6), (4.0, -1.9, 0.6), (1.5, 11.8, 0.6), (3.1, 11.8, 0.6),
+          (4.7, 11.8, 0.6)]
 for X, Y, r in SHRUBS:
     cx, cy = sv(local(X, Y))
     LS.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r * SC:.1f}" fill="#5f8a3a" stroke="#3d5e22" stroke-width="1" opacity="0.9"/>')
@@ -334,7 +345,7 @@ for k, v in LEISURE.items():
     poly = lrect(v[0] - v[2], v[1] - v[2], v[0] + v[2], v[1] + v[2]) if k == "tub" else lrect(*v)
     ok_in = all(inside(P, c) for c in poly)
     hits = [i for i, b in enumerate(_house_blocks) if overlap(b, poly, 0.0)] if k != "path" else []
-    print(f"{k}: внутри участка={ok_in}, пересечения с домом/террасами={hits}, "
+    print(f"{k}: внутри участка={ok_in}, пересечения с домом/террасами={hits}, с парковкой={overlap(PARK, poly)}, "
           f"мин. до забора={min(min(dist_to_line_any(c) for c in poly) for _ in [0]):.2f} м")
 
 def clip_left(poly, xl):
@@ -354,7 +365,7 @@ BACKYARD = area(clip_left(P, xe - HOUSE_L - 2.0))
 print(f"задний двор (западнее садовой террасы): {BACKYARD:.0f} м²")
 
 TERR_AREA = sum(abs((t[3] - t[1]) * (t[4] - t[2])) for t in TERRACES)
-FREE = area(P) - HOUSE_AREA - TERR_AREA
+FREE = area(P) - HOUSE_AREA - TERR_AREA - area(PARK)
 
 W, H = (maxx - minx) * SC, (maxy - miny) * SC + 112
 el = [
@@ -362,11 +373,15 @@ el = [
     f'<rect width="100%" height="100%" fill="#fff"/>',
     poly_svg(P, fill="#9caf5a", stroke="#3d4a1c", stroke_width=2),
     poly_svg(BUILD, fill="none", stroke="#c0392b", stroke_width=1.5, stroke_dasharray="6 4"),
+    poly_svg(PARK, fill="#bdbdbd", stroke="#555", stroke_width=1.5),
     '<defs><marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">'
     '<path d="M0,0 L10,5 L0,10 z" fill="#0b5cad"/></marker></defs>',
     *LS,
     *ROOMS_SVG,
     *DIM_SVG,
+    text((centroid(PARK)[0], centroid(PARK)[1] + 0.55), "P · 2 авто друг за другом", 13, font_weight="bold"),
+    text((centroid(PARK)[0], centroid(PARK)[1] - 0.2), f"{PARK_L:g}×{PARK_W:.1f} м · {area(PARK):.1f} м²", 11),
+    text((centroid(PARK)[0], centroid(PARK)[1] - 0.85), f"2 места по {PARK_L / 2:g} м · бетон от забора до стены дома", 10),
     text(mid(A, B, -0.9), f"{AB} м · ЮГ (солнце днём)", 14, fill="#8a5a00"),
     text(mid(C, D, 0.6), f"{CD} м · СЕВЕР", 14),
     text(mid(D, A, 0), f"{DA} м", 14, transform=""),
@@ -374,8 +389,15 @@ el = [
 ]
 mx, my = sv(mid(D, A)); el[-2] = f'<text x="{mx-30:.1f}" y="{my:.1f}" font-size="14" text-anchor="middle" font-family="sans-serif">{DA} м</text>'
 mx, my = sv(mid(B, C)); el[-1] = f'<text x="{mx+38:.1f}" y="{my:.1f}" font-size="14" text-anchor="middle" font-family="sans-serif">{BC} м</text><text x="{mx+75:.1f}" y="{my:.1f}" font-size="15" font-weight="bold" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 {mx+75:.1f} {my:.1f})">ул. 1905 года · ВОСТОК</text>'
-el.append(text((3.9, 2.4), "газон", 14, fill="#2f3b12", font_style="italic"))
-el.append(text((8.6, 0.45), "кустарник / живая изгородь", 9, fill="#2f3b12", font_style="italic"))
+# ворота и въезд с улицы
+gy = (park_y0 + C[1]) / 2
+g1, g2 = sv((park_x1, park_y0)), sv(C)
+el.append(f'<line x1="{g1[0]:.1f}" y1="{g1[1]:.1f}" x2="{g2[0]:.1f}" y2="{g2[1]:.1f}" stroke="#333" stroke-width="5"/>')
+e1 = sv((park_x1 + 2.5, gy)); e2 = sv((park_x1 - 0.5, gy))
+el.append(f'<line x1="{e1[0]:.1f}" y1="{e1[1]:.1f}" x2="{e2[0]:.1f}" y2="{e2[1]:.1f}" stroke="#222" stroke-width="2.5"/><circle cx="{e2[0]:.1f}" cy="{e2[1]:.1f}" r="4"/>')
+el.append(text((park_x1 + 1.4, gy + 0.3), "ворота", 10, fill="#222", font_weight="bold"))
+el.append(text((5.4, 9.0), "газон", 14, fill="#2f3b12", font_style="italic"))
+el.append(text((local(2.4, 0)[0], 0.45), "кустарник / живая изгородь", 9, fill="#2f3b12", font_style="italic"))
 
 # ---------- стороны света и окружение (по Яндекс.Картам: участок на западной стороне ул. 1905 года) ----------
 NORTH_DEG = -4.6  # север повёрнут на ~5° против часовой от «верха» схемы (по направлению улицы)
@@ -396,10 +418,10 @@ y0 = (maxy - miny) * SC + 25
 el.append(f'<rect x="20" y="{y0-12}" width="28" height="0" stroke="#c0392b" stroke-dasharray="6 4" stroke-width="1.5"/>')
 el.append(f'<line x1="20" y1="{y0-5}" x2="50" y2="{y0-5}" stroke="#c0392b" stroke-dasharray="6 4" stroke-width="1.5"/>')
 el.append(f'<text x="58" y="{y0}" font-size="13" font-family="sans-serif">граница пятна застройки: отступ {SETBACK:g} м от всех границ</text>')
-el.append(f'<text x="20" y="{y0+24}" font-size="13" font-family="sans-serif">участок ≈{area(P):.0f} м² · дом {HOUSE_AREA:.1f} м² (7 модулей DP-Module) · террасы {TERR_AREA:.0f} м² · двор/сад ≈{FREE:.0f} м², из них задний двор ≈{BACKYARD:.0f} м²</text>')
+el.append(f'<text x="20" y="{y0+24}" font-size="13" font-family="sans-serif">участок ≈{area(P):.0f} м² · дом {HOUSE_AREA:.1f} м² (7 модулей DP-Module) · террасы {TERR_AREA:.0f} м² · парковка {area(PARK):.0f} м² · двор/сад ≈{FREE:.0f} м², из них задний двор ≈{BACKYARD:.0f} м²</text>')
 el.append(f'<text x="20" y="{y0-30}" font-size="14" font-weight="bold" font-family="sans-serif">ИЖС, Одинцово, ул. 1905 года · ПЗЗ (обычно для ИЖС в МО): отступ 3 м, застройка ≤40% → дом {HOUSE_AREA/area(P)*100:.0f}%, с террасами {(HOUSE_AREA+TERR_AREA)/area(P)*100:.0f}% (уточнить по ГПЗУ)</text>')
 el.append(f'<text x="20" y="{y0+46}" font-size="13" fill="#0b5cad" font-family="sans-serif">синие размеры — расстояние от стены дома / края террасы до забора</text>')
-el.append(f'<text x="20" y="{y0+68}" font-size="13" fill="#555" font-family="sans-serif">зеркальный вариант: доп. модуль (мастер-блок) с южной стороны, жилая зона у дороги, свободная ниша — на юго-востоке · парковка пока не размещена</text>')
+el.append(f'<text x="20" y="{y0+68}" font-size="13" fill="#555" font-family="sans-serif">зеркальный вариант: мастер-блок с южной стороны, жилая зона у дороги · парковка: 2 авто друг за другом вдоль северного забора, бетон от забора до дома, въезд через ворота · детская зона в юго-западном углу</text>')
 el.append("</svg>")
 open("plan.svg", "w").write("\n".join(el))
 
@@ -427,6 +449,7 @@ scene = {
     "north_deg": NORTH_DEG,
     "house": {"x0": local(0, 0)[0], "y0": local(0, 0)[1], "outline": OUTLINE, "rooms": ROOMS, "blocks": HOUSE_BLOCKS},
     "terraces": [list(t) for t in TERRACES],
+    "parking": [list(p) for p in PARK],
     "doors": DOORS,
     "leisure": LEISURE,
     "shrubs": SHRUBS,
