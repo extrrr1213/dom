@@ -4,7 +4,7 @@ import math
 AB, BC, CD, DA, AREA = 30.7, 16.3, 24.2, 18.0, 450.0  # низ, дорога, верх, лево
 SETBACK = 3.0          # отступ дома от границ (по запросу)
 HOUSE_AREA = 105.0
-PARK_W, PARK_D = 5.2, 5.5  # 2 машины рядом: 2 места по 2.6 × 5.5 м
+PARK_W, PARK_D = 6.0, 6.0  # 2 машины рядом с комфортом: 2 места по 3.0 × 6.0 м (36 м²)
 
 
 def shape(a):
@@ -132,21 +132,28 @@ def place(xe, y0):
 
 HOUSE_BLOCKS = [(0, 0, 14, 7.5), (0, 7.5, 7, 10)]
 best = None
-for yi in range(30, 80):
-    y0 = yi * 0.1
-    for xi in range(320, 100, -1):
-        xe = xi * 0.1
-        loc = place(xe, y0)
-        blocks = [[loc(x0, b0), loc(x1, b0), loc(x1, b1), loc(x0, b1)] for x0, b0, x1, b1 in HOUSE_BLOCKS]
-        road_t, garden_t = ([loc(x0, b0), loc(x1, b0), loc(x1, b1), loc(x0, b1)] for _, x0, b0, x1, b1 in TERRACES)
-        if (all(inside(BUILD, loc(*p)) for p in OUTLINE)
-                and all(inside(BUILD, c) for c in road_t)
-                and all(inside(BUILD, c) for c in garden_t)
-                and not any(overlap(bl, PARK, 0.25) for bl in blocks + [road_t])):
-            if best is None or xe > best[0]:
-                best = (xe, y0)
-            break
+# терраса у дороги при необходимости чуть короче сверху, чтобы рядом встала парковка 6×6
+for rt_top in (7.5, 7.25, 7.0, 6.75, 6.5):
+    TERRACES[0] = ("терраса", 14.0, 0.0, 15.5, rt_top)
+    for yi in range(30, 80):
+        y0 = yi * 0.1
+        for xi in range(320, 100, -1):
+            xe = xi * 0.1
+            loc = place(xe, y0)
+            blocks = [[loc(x0, b0), loc(x1, b0), loc(x1, b1), loc(x0, b1)] for x0, b0, x1, b1 in HOUSE_BLOCKS]
+            road_t, garden_t = ([loc(x0, b0), loc(x1, b0), loc(x1, b1), loc(x0, b1)] for _, x0, b0, x1, b1 in TERRACES)
+            if (all(inside(BUILD, loc(*p)) for p in OUTLINE)
+                    and all(inside(BUILD, c) for c in road_t)
+                    and all(inside(BUILD, c) for c in garden_t)
+                    and not any(overlap(bl, PARK, 0.15) for bl in blocks)
+                    and not overlap(road_t, PARK, 0.1)):  # с парковки сразу на террасу
+                if best is None or xe > best[0]:
+                    best = (xe, y0)
+                break
+    if best:
+        break
 xe, y0 = best
+print("терраса у дороги до Y =", rt_top, "| xe =", round(xe, 2), "y0 =", round(y0, 2))
 local = place(xe, y0)
 
 
@@ -210,6 +217,11 @@ for name, X, Y, LX, LY in DOORS:
     if name:
         ROOMS_SVG.append(text(local(LX, LY), name, 10, fill="#c0392b", font_weight="bold"))
 
+def dist_to_line_any(p):
+    return min(abs((P[(i + 1) % 4][0] - P[i][0]) * (P[i][1] - p[1]) - (P[i][0] - p[0]) * (P[(i + 1) % 4][1] - P[i][1]))
+               / math.hypot(P[(i + 1) % 4][0] - P[i][0], P[(i + 1) % 4][1] - P[i][1]) for i in range(4))
+
+
 def ray_to_fence(p, d):
     """Точка пересечения луча p + k·d с границей участка (ближайшая)."""
     best_k = None
@@ -228,12 +240,10 @@ def ray_to_fence(p, d):
 
 DIMS = [  # (точка в координатах дома, направление) — от стены/террасы до забора
     ((-2.0, 0.4), (-1, 0)),    # сад-терраса, низ
-    ((-2.0, 9.6), (-1, 0)),    # сад-терраса, верх
+    ((-2.0, 9.9), (-1, 0)),    # сад-терраса, верх
     ((3.0, 0.0), (0, -1)),     # спальни -> нижний забор
-    ((11.0, 0.0), (0, -1)),    # кухня -> нижний забор
     ((2.0, 10.0), (0, 1)),     # мастер-блок -> верхний забор
-    ((15.5, 2.0), (1, 0)),     # терраса у дороги -> забор у дороги
-    ((9.0, 7.5), (0, 1)),      # ниша над санузлом -> верхний забор
+    ((15.5, 1.0), (1, 0)),     # терраса у дороги -> забор у дороги
 ]
 DIM_SVG = []
 for (X, Y), d in DIMS:
@@ -252,6 +262,74 @@ for (X, Y), d in DIMS:
                        f'<text x="{mx:.1f}" y="{my - 7:.1f}" font-size="12" font-weight="bold" fill="#0b5cad" text-anchor="middle" font-family="sans-serif">{lbl}</text>')
     print(f"размер от {X, Y} по {d}: {dist:.2f} м")
 
+# ---------- жизнь на участке (координаты от дома: X вдоль дома, Y поперёк) ----------
+def lrect_svg(x0, y0, x1, y1, **kw):
+    return poly_svg(lrect(x0, y0, x1, y1), **kw)
+
+
+def lbl(X, Y, s, size=10, **kw):
+    return text(local(X, Y), s, size, **kw)
+
+
+LEISURE = {
+    "pool": (-4.9, 1.6, -2.4, 6.6),      # бассейн 2.5 × 5 м у садовой террасы
+    "tub": (-3.4, 8.4, 1.0),             # купель Ø2 м у мастер-спальни (центр X, Y, радиус)
+    "sport": (7.3, 7.8, 13.8, 13.0),     # спортплощадка в нише над санузлом/гостиной
+    "sand": (8.0, -2.5, 10.0, -0.5),     # песочница 2 × 2 м под окнами кухни
+    "swing": (10.6, -2.6, 13.4, -0.5),   # качели/горка
+    "path": (15.5, 2.8, 19.9, 4.0),      # дорожка от калитки ко входу
+}
+LS = []
+x0, y0_, x1, y1 = LEISURE["path"]
+LS.append(lrect_svg(x0, y0_, x1, y1, fill="#d9d4c7", stroke="#9a927e", stroke_width=1))
+gx, gy = local(x1 - 0.4, (y0_ + y1) / 2)
+LS.append(text(local(x1 - 1.0, y1 + 0.35), "калитка", 9, fill="#4a4434", font_weight="bold"))
+# деревья / кусты
+for X, Y, r in [(-9.0, -1.6, 0.9), (-5.5, -1.7, 0.9), (1.5, -1.8, 0.8), (4.8, -1.8, 0.8), (17.0, -1.5, 0.8)]:
+    cx, cy = sv(local(X, Y))
+    LS.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r * SC:.1f}" fill="#5f8a3a" stroke="#3d5e22" stroke-width="1" opacity="0.9"/>')
+# спортплощадка
+x0, y0_, x1, y1 = LEISURE["sport"]
+LS.append(lrect_svg(x0, y0_, x1, y1, fill="#5a9e6f", stroke="#ffffff", stroke_width=2))
+LS.append(lrect_svg(x0 + 0.4, y0_ + 0.4, x1 - 0.4, y1 - 0.4, fill="none", stroke="#ffffff", stroke_width=1.2))
+(nx1, ny1), (nx2, ny2) = sv(local((x0 + x1) / 2, y0_)), sv(local((x0 + x1) / 2, y1))
+LS.append(f'<line x1="{nx1:.1f}" y1="{ny1:.1f}" x2="{nx2:.1f}" y2="{ny2:.1f}" stroke="#ffffff" stroke-width="3" stroke-dasharray="3 2"/>')
+LS.append(lbl((x0 + x1) / 2, (y0_ + y1) / 2 + 1.0, "СПОРТПЛОЩАДКА", 11, fill="#fff", font_weight="bold", stroke="#5a9e6f", stroke_width=4, paint_order="stroke"))
+LS.append(lbl((x0 + x1) / 2, (y0_ + y1) / 2 + 0.35, f"{x1 - x0:g}×{y1 - y0_:g} м", 10, fill="#fff", stroke="#5a9e6f", stroke_width=4, paint_order="stroke"))
+LS.append(lbl((x0 + x1) / 2, (y0_ + y1) / 2 - 0.9, "бадминтон · волейбол", 9, fill="#fff", stroke="#5a9e6f", stroke_width=4, paint_order="stroke"))
+LS.append(lbl((x0 + x1) / 2, (y0_ + y1) / 2 - 1.5, "турник · батут", 9, fill="#fff", stroke="#5a9e6f", stroke_width=4, paint_order="stroke"))
+# бассейн
+x0, y0_, x1, y1 = LEISURE["pool"]
+LS.append(lrect_svg(x0 - 0.4, y0_ - 0.4, x1 + 0.4, y1 + 0.4, fill="#e9e1cf", stroke="#b8ab8a", stroke_width=1))
+LS.append(lrect_svg(x0, y0_, x1, y1, fill="#5bb8e6", stroke="#1f7fb0", stroke_width=2))
+LS.append(lbl((x0 + x1) / 2, (y0_ + y1) / 2 + 0.3, "бассейн", 10, fill="#fff", font_weight="bold"))
+LS.append(lbl((x0 + x1) / 2, (y0_ + y1) / 2 - 0.4, f"{x1 - x0:g}×{y1 - y0_:g} м", 9, fill="#fff"))
+# купель
+X, Y, r = LEISURE["tub"]
+cx, cy = sv(local(X, Y))
+LS.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{(r + 0.3) * SC:.1f}" fill="#c9a36b" stroke="#6b4f1d" stroke-width="1"/>')
+LS.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r * SC:.1f}" fill="#7fd0e8" stroke="#1f7fb0" stroke-width="2"/>')
+LS.append(lbl(X, Y + 0.1, "купель", 10, font_weight="bold", fill="#0d3b52"))
+LS.append(lbl(X, Y - 0.5, f"Ø{2 * r:g} м", 9, fill="#0d3b52"))
+# песочница и качели
+x0, y0_, x1, y1 = LEISURE["sand"]
+LS.append(lrect_svg(x0, y0_, x1, y1, fill="#f1d98a", stroke="#a8893a", stroke_width=1.5))
+LS.append(lbl((x0 + x1) / 2, (y0_ + y1) / 2 + 0.1, "песочница", 9, font_weight="bold"))
+LS.append(lbl((x0 + x1) / 2, (y0_ + y1) / 2 - 0.5, "2×2 м", 9))
+x0, y0_, x1, y1 = LEISURE["swing"]
+LS.append(lrect_svg(x0, y0_, x1, y1, fill="#f4c7a1", stroke="#b0703a", stroke_width=1.5))
+LS.append(lbl((x0 + x1) / 2, (y0_ + y1) / 2 + 0.1, "качели / горка", 9, font_weight="bold"))
+LS.append(lbl((x0 + x1) / 2, (y0_ + y1) / 2 - 0.5, "детская зона", 9))
+
+# проверка: всё внутри участка, не пересекается с домом/террасами/парковкой
+_house_blocks = [lrect(*b) for b in HOUSE_BLOCKS] + [lrect(*t[1:]) for t in TERRACES]
+for k, v in LEISURE.items():
+    poly = lrect(v[0] - v[2], v[1] - v[2], v[0] + v[2], v[1] + v[2]) if k == "tub" else lrect(*v)
+    ok_in = all(inside(P, c) for c in poly)
+    hits = [i for i, b in enumerate(_house_blocks) if overlap(b, poly, 0.0)] if k != "path" else []
+    print(f"{k}: внутри участка={ok_in}, пересечения с домом/террасами={hits}, с парковкой={overlap(PARK, poly)}, "
+          f"мин. до забора={min(min(dist_to_line_any(c) for c in poly) for _ in [0]):.2f} м")
+
 TERR_AREA = sum(abs((t[3] - t[1]) * (t[4] - t[2])) for t in TERRACES)
 FREE = area(P) - HOUSE_AREA - TERR_AREA - PARK_W * PARK_D
 
@@ -264,6 +342,7 @@ el = [
     poly_svg(PARK, fill="#bdbdbd", stroke="#555", stroke_width=1.5),
     '<defs><marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">'
     '<path d="M0,0 L10,5 L0,10 z" fill="#0b5cad"/></marker></defs>',
+    *LS,
     *ROOMS_SVG,
     *DIM_SVG,
     text(centroid(PARK), "P · 2 авто", 13, font_weight="bold"),
@@ -278,13 +357,12 @@ mx, my = sv(mid(B, C)); el[-1] = f'<text x="{mx+38:.1f}" y="{my:.1f}" font-size=
 # стрелка въезда
 e1 = sv(to_xy(park_s + PARK_W / 2, -2.5)); e2 = sv(to_xy(park_s + PARK_W / 2, 0.5))
 el.append(f'<line x1="{e1[0]:.1f}" y1="{e1[1]:.1f}" x2="{e2[0]:.1f}" y2="{e2[1]:.1f}" stroke="#222" stroke-width="2.5"/><circle cx="{e2[0]:.1f}" cy="{e2[1]:.1f}" r="4"/>')
-garden = (5.4, 6.5)
-el.append(text(garden, "сад / двор", 15, fill="#2f3b12", font_style="italic"))
+el.append(text((3.9, 2.4), "газон", 14, fill="#2f3b12", font_style="italic"))
 y0 = (maxy - miny) * SC + 25
 el.append(f'<rect x="20" y="{y0-12}" width="28" height="0" stroke="#c0392b" stroke-dasharray="6 4" stroke-width="1.5"/>')
 el.append(f'<line x1="20" y1="{y0-5}" x2="50" y2="{y0-5}" stroke="#c0392b" stroke-dasharray="6 4" stroke-width="1.5"/>')
 el.append(f'<text x="58" y="{y0}" font-size="13" font-family="sans-serif">граница пятна застройки: отступ {SETBACK:g} м от всех границ</text>')
-el.append(f'<text x="20" y="{y0+24}" font-size="13" font-family="sans-serif">участок ≈{area(P):.0f} м² · дом {HOUSE_AREA:.1f} м² (7 модулей DP-Module) · террасы {TERR_AREA:.0f} м² · парковка {PARK_W*PARK_D:.0f} м² · свободно под двор/сад ≈{FREE:.0f} м²</text>')
+el.append(f'<text x="20" y="{y0+24}" font-size="13" font-family="sans-serif">участок ≈{area(P):.0f} м² · дом {HOUSE_AREA:.1f} м² (7 модулей DP-Module) · террасы {TERR_AREA:.0f} м² · парковка {PARK_W*PARK_D:.0f} м² · двор/сад ≈{FREE:.0f} м² (в т.ч. бассейн, купель, площадки)</text>')
 el.append(f'<text x="20" y="{y0+46}" font-size="13" fill="#0b5cad" font-family="sans-serif">синие размеры — расстояние от стены дома / края террасы до забора</text>')
 el.append("</svg>")
 open("plan.svg", "w").write("\n".join(el))
