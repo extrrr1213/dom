@@ -241,7 +241,7 @@ def ray_to_fence(p, d):
 DIMS = [  # (точка в координатах дома, направление) — от стены/террасы до забора
     ((-2.0, 0.4), (-1, 0)),    # сад-терраса, низ
     ((-2.0, 9.9), (-1, 0)),    # сад-терраса, верх
-    ((3.0, 0.0), (0, -1)),     # спальни -> нижний забор
+    ((6.2, 0.0), (0, -1)),     # спальни -> нижний забор
     ((2.0, 10.0), (0, 1)),     # мастер-блок -> верхний забор
     ((15.5, 1.0), (1, 0)),     # терраса у дороги -> забор у дороги
 ]
@@ -284,8 +284,9 @@ x0, y0_, x1, y1 = LEISURE["path"]
 LS.append(lrect_svg(x0, y0_, x1, y1, fill="#d9d4c7", stroke="#9a927e", stroke_width=1))
 gx, gy = local(x1 - 0.4, (y0_ + y1) / 2)
 LS.append(text(local(x1 - 1.0, y1 + 0.35), "калитка", 9, fill="#4a4434", font_weight="bold"))
-# деревья / кусты
-for X, Y, r in [(-9.0, -1.6, 0.9), (-5.5, -1.7, 0.9), (1.5, -1.8, 0.8), (4.8, -1.8, 0.8), (17.0, -1.5, 0.8)]:
+# кустарник / живая изгородь у южного забора (≥1 м от забора; высокие деревья — не ближе 4 м к соседу)
+for X, Y, r in [(-9.0, -1.6, 0.6), (-7.4, -1.6, 0.6), (-5.8, -1.6, 0.6), (1.5, -1.8, 0.6), (3.1, -1.8, 0.6),
+                (4.7, -1.8, 0.6), (16.8, -1.6, 0.6)]:
     cx, cy = sv(local(X, Y))
     LS.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r * SC:.1f}" fill="#5f8a3a" stroke="#3d5e22" stroke-width="1" opacity="0.9"/>')
 # спортплощадка
@@ -347,17 +348,34 @@ el = [
     *DIM_SVG,
     text(centroid(PARK), "P · 2 авто", 13, font_weight="bold"),
     text((centroid(PARK)[0], centroid(PARK)[1] - 1.0), f"{PARK_W:g}×{PARK_D:g} м", 11),
-    text(mid(A, B, -1.5), f"{AB} м", 14),
-    text(mid(C, D, 1.0), f"{CD} м", 14),
+    text(mid(A, B, -0.9), f"{AB} м · ЮГ (солнце днём)", 14, fill="#8a5a00"),
+    text(mid(C, D, 0.6), f"{CD} м · СЕВЕР", 14),
     text(mid(D, A, 0), f"{DA} м", 14, transform=""),
     text(mid(B, C, 0), "", 14),
 ]
 mx, my = sv(mid(D, A)); el[-2] = f'<text x="{mx-30:.1f}" y="{my:.1f}" font-size="14" text-anchor="middle" font-family="sans-serif">{DA} м</text>'
-mx, my = sv(mid(B, C)); el[-1] = f'<text x="{mx+38:.1f}" y="{my:.1f}" font-size="14" text-anchor="middle" font-family="sans-serif">{BC} м</text><text x="{mx+75:.1f}" y="{my:.1f}" font-size="15" font-weight="bold" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 {mx+75:.1f} {my:.1f})">ДОРОГА</text>'
+mx, my = sv(mid(B, C)); el[-1] = f'<text x="{mx+38:.1f}" y="{my:.1f}" font-size="14" text-anchor="middle" font-family="sans-serif">{BC} м</text><text x="{mx+75:.1f}" y="{my:.1f}" font-size="15" font-weight="bold" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 {mx+75:.1f} {my:.1f})">ул. 1905 года · ВОСТОК</text>'
 # стрелка въезда
 e1 = sv(to_xy(park_s + PARK_W / 2, -2.5)); e2 = sv(to_xy(park_s + PARK_W / 2, 0.5))
 el.append(f'<line x1="{e1[0]:.1f}" y1="{e1[1]:.1f}" x2="{e2[0]:.1f}" y2="{e2[1]:.1f}" stroke="#222" stroke-width="2.5"/><circle cx="{e2[0]:.1f}" cy="{e2[1]:.1f}" r="4"/>')
 el.append(text((3.9, 2.4), "газон", 14, fill="#2f3b12", font_style="italic"))
+el.append(text((8.6, 0.45), "кустарник / живая изгородь", 9, fill="#2f3b12", font_style="italic"))
+
+# ---------- стороны света и окружение (по Яндекс.Картам: участок на западной стороне ул. 1905 года) ----------
+NORTH_DEG = -4.6  # север повёрнут на ~5° против часовой от «верха» схемы (по направлению улицы)
+cx, cy = 70, 80
+el.append(f'<g transform="rotate({NORTH_DEG} {cx} {cy})">'
+          f'<circle cx="{cx}" cy="{cy}" r="34" fill="#fff" stroke="#333" stroke-width="1.5"/>'
+          f'<path d="M{cx},{cy - 30} L{cx + 9},{cy + 6} L{cx},{cy} L{cx - 9},{cy + 6} z" fill="#c0392b"/>'
+          f'<path d="M{cx},{cy + 30} L{cx + 9},{cy - 6} L{cx},{cy} L{cx - 9},{cy - 6} z" fill="#999"/>'
+          f'<text x="{cx}" y="{cy - 38}" font-size="16" font-weight="bold" text-anchor="middle" font-family="sans-serif">С</text></g>')
+ax, ay = sv((1.0, 17.8))
+el.append(f'<text x="{ax:.1f}" y="{ay:.1f}" font-size="12" fill="#5a2d82" font-weight="bold" font-family="sans-serif">↖ ж/д МЦД-1 (Баковка) ≈50 м — шум</text>')
+lx, ly = sv((1.2, 9.0))
+el.append(f'<text x="{lx - 70:.1f}" y="{ly:.1f}" font-size="12" fill="#1f7fb0" font-weight="bold" text-anchor="middle" font-family="sans-serif" '
+          f'transform="rotate(-66 {lx - 70:.1f} {ly:.1f})">ЗАПАД · ручей ≈10–20 м · вечернее солнце</text>')
+mx2, my2 = sv((30.2, -1.2))
+el.append(f'<text x="{mx2:.1f}" y="{my2:.1f}" font-size="12" fill="#555" font-family="sans-serif">↘ Минское ш. ≈100 м</text>')
 y0 = (maxy - miny) * SC + 25
 el.append(f'<rect x="20" y="{y0-12}" width="28" height="0" stroke="#c0392b" stroke-dasharray="6 4" stroke-width="1.5"/>')
 el.append(f'<line x1="20" y1="{y0-5}" x2="50" y2="{y0-5}" stroke="#c0392b" stroke-dasharray="6 4" stroke-width="1.5"/>')
