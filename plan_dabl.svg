@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1390" height="895" viewBox="0 0 1390 895">
+<rect width="100%" height="100%" fill="#fff"/>
+<polygon points="128.0,655.2 1110.4,655.2 1134.3,134.2 359.9,128.0" fill="#9caf5a" stroke="#3d4a1c" stroke-width="2"/>
+<polygon points="275.1,559.2 1018.7,559.2 1033.8,229.4 422.4,224.5" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="680.0,271.2 1128.0,271.2 1134.3,134.2 680.0,130.6" fill="#bdbdbd" stroke="#555" stroke-width="1.5"/>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0b5cad"/></marker></defs>
+<rect x="708.8" y="172.3" width="150.4" height="60.8" rx="10" fill="#d4d4d4" stroke="#888" stroke-width="1.2" stroke-dasharray="5 3"/>
+<rect x="952.0" y="172.3" width="150.4" height="60.8" rx="10" fill="#d4d4d4" stroke="#888" stroke-width="1.2" stroke-dasharray="5 3"/>
+<polygon points="1018.6,493.9 1117.8,493.9 1117.8,455.5 1018.6,455.5" fill="#d9d4c7" stroke="#9a927e" stroke-width="1"/>
+<line x1="1118.0" y1="490.7" x2="1119.4" y2="458.7" stroke="#8a5a00" stroke-width="5"/>
+<text x="1085.8" y="508.3" font-size="9" text-anchor="middle" font-family="sans-serif" fill="#4a4434" font-weight="bold">калитка</text>
+<circle cx="544.0" cy="616.8" r="17.6" fill="#5f8a3a" stroke="#3d5e22" stroke-width="1" opacity="0.9"/>
+<circle cx="608.0" cy="616.8" r="17.6" fill="#5f8a3a" stroke="#3d5e22" stroke-width="1" opacity="0.9"/>
+<circle cx="678.4" cy="616.8" r="17.6" fill="#5f8a3a" stroke="#3d5e22" stroke-width="1" opacity="0.9"/>
+<circle cx="755.2" cy="616.8" r="17.6" fill="#5f8a3a" stroke="#3d5e22" stroke-width="1" opacity="0.9"/>
+<circle cx="825.6" cy="616.8" r="17.6" fill="#5f8a3a" stroke="#3d5e22" stroke-width="1" opacity="0.9"/>
+<circle cx="896.0" cy="616.8" r="17.6" fill="#5f8a3a" stroke="#3d5e22" stroke-width="1" opacity="0.9"/>
+<circle cx="1036.8" cy="616.8" r="17.6" fill="#5f8a3a" stroke="#3d5e22" stroke-width="1" opacity="0.9"/>
+<circle cx="403.2" cy="163.5" r="17.6" fill="#5f8a3a" stroke="#3d5e22" stroke-width="1" opacity="0.9"/>
+<circle cx="467.2" cy="164.1" r="17.6" fill="#5f8a3a" stroke="#3d5e22" stroke-width="1" opacity="0.9"/>
+<circle cx="531.2" cy="164.6" r="17.6" fill="#5f8a3a" stroke="#3d5e22" stroke-width="1" opacity="0.9"/>
+<circle cx="595.2" cy="165.1" r="17.6" fill="#5f8a3a" stroke="#3d5e22" stroke-width="1" opacity="0.9"/>
+<polygon points="281.6,543.2 684.8,543.2 684.8,348.0 281.6,348.0" fill="#5a9e6f" stroke="#ffffff" stroke-width="2"/>
+<polygon points="291.2,533.6 675.2,533.6 675.2,357.6 291.2,357.6" fill="none" stroke="#ffffff" stroke-width="1.2"/>
+<line x1="483.2" y1="543.2" x2="483.2" y2="348.0" stroke="#ffffff" stroke-width="3" stroke-dasharray="3 2"/>
+<polyline points="689.6,343.2 276.8,343.2 276.8,548.0 689.6,548.0" fill="none" stroke="#2e5e3a" stroke-width="2.5" stroke-dasharray="2 2"/>
+<text x="376.0" y="391.2" font-size="12" text-anchor="middle" font-family="sans-serif" fill="#fff" font-weight="bold" stroke="#5a9e6f" stroke-width="4" paint-order="stroke">СПОРТПЛОЩАДКА</text>
+<text x="376.0" y="412.0" font-size="11" text-anchor="middle" font-family="sans-serif" fill="#fff" stroke="#5a9e6f" stroke-width="4" paint-order="stroke">12.6×6.1 м · 77 м²</text>
+<text x="376.0" y="474.4" font-size="9" text-anchor="middle" font-family="sans-serif" fill="#fff" stroke="#5a9e6f" stroke-width="4" paint-order="stroke">бадминтон · мини-волейбол</text>
+<text x="376.0" y="493.6" font-size="9" text-anchor="middle" font-family="sans-serif" fill="#fff" stroke="#5a9e6f" stroke-width="4" paint-order="stroke">турник · батут · сетка 3 м (пунктир)</text>
+<polygon points="192.0,645.6 387.2,645.6 387.2,556.0 192.0,556.0" fill="#f4c7a1" fill-opacity="0.35" stroke="#b0703a" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="224.0" y="634.4" font-size="8" text-anchor="middle" font-family="sans-serif" fill="#6b3d17">зона</text>
+<text x="355.2" y="634.4" font-size="8" text-anchor="middle" font-family="sans-serif" fill="#6b3d17">качания</text>
+<polygon points="256.0,645.6 323.2,645.6 323.2,556.0 256.0,556.0" fill="#f4c7a1" stroke="#b0703a" stroke-width="1.5"/>
+<text x="289.6" y="592.8" font-size="9" text-anchor="middle" font-family="sans-serif" font-weight="bold">качели /</text>
+<text x="289.6" y="608.8" font-size="9" text-anchor="middle" font-family="sans-serif" font-weight="bold">горка</text>
+<polygon points="403.2,639.2 467.2,639.2 467.2,575.2 403.2,575.2" fill="#f1d98a" stroke="#a8893a" stroke-width="1.5"/>
+<text x="435.2" y="604.0" font-size="9" text-anchor="middle" font-family="sans-serif" font-weight="bold">песочница</text>
+<text x="435.2" y="623.2" font-size="9" text-anchor="middle" font-family="sans-serif" >2×2 м</text>
+<polygon points="454.4,332.0 640.0,332.0 640.0,226.4 454.4,226.4" fill="#e9e1cf" stroke="#b8ab8a" stroke-width="1"/>
+<polygon points="467.2,319.2 627.2,319.2 627.2,239.2 467.2,239.2" fill="#5bb8e6" stroke="#1f7fb0" stroke-width="2"/>
+<text x="547.2" y="271.2" font-size="10" text-anchor="middle" font-family="sans-serif" fill="#fff" font-weight="bold">бассейн</text>
+<text x="547.2" y="293.6" font-size="9" text-anchor="middle" font-family="sans-serif" fill="#fff">5×2.5 м</text>
+<circle cx="380.8" cy="269.6" r="41.6" fill="#c9a36b" stroke="#6b4f1d" stroke-width="1"/>
+<circle cx="380.8" cy="269.6" r="32.0" fill="#7fd0e8" stroke="#1f7fb0" stroke-width="2"/>
+<text x="380.8" y="266.4" font-size="10" text-anchor="middle" font-family="sans-serif" font-weight="bold" fill="#0d3b52">купель</text>
+<text x="380.8" y="285.6" font-size="9" text-anchor="middle" font-family="sans-serif" fill="#0d3b52">Ø2 м</text>
+<polygon points="730.6,559.2 1018.6,559.2 1018.6,271.2 730.6,271.2" fill="#f3e6c8" stroke="#6b4f1d" stroke-width="3"/>
+<text x="874.6" y="341.6" font-size="15" text-anchor="middle" font-family="sans-serif" font-weight="bold">«Дабл» 160-2</text>
+<text x="874.6" y="364.0" font-size="11" text-anchor="middle" font-family="sans-serif" >DP-Module · 6 модулей</text>
+<text x="874.6" y="384.8" font-size="11" text-anchor="middle" font-family="sans-serif" >9×9 м · 2 этажа · ≈160 м²</text>
+<text x="874.6" y="405.6" font-size="10" text-anchor="middle" font-family="sans-serif" >высота 5.8 м</text>
+<text x="874.6" y="439.2" font-size="9" text-anchor="middle" font-family="sans-serif" >1 эт.: кухня-гостиная, прихожая,</text>
+<text x="874.6" y="455.2" font-size="9" text-anchor="middle" font-family="sans-serif" >с/у, техпомещение, терраса</text>
+<text x="874.6" y="477.6" font-size="9" text-anchor="middle" font-family="sans-serif" >2 эт.: 2 спальни, зона отдыха,</text>
+<text x="874.6" y="493.6" font-size="9" text-anchor="middle" font-family="sans-serif" >балкон, с/у</text>
+<circle cx="1018.6" cy="474.7" r="5" fill="#c0392b"/>
+<text x="1037.8" y="445.9" font-size="10" text-anchor="middle" font-family="sans-serif" fill="#c0392b" font-weight="bold">вход</text>
+<circle cx="730.6" cy="415.2" r="5" fill="#c0392b"/>
+<text x="706.6" y="404.0" font-size="10" text-anchor="middle" font-family="sans-serif" fill="#c0392b" font-weight="bold">в сад</text>
+<line x1="1018.6" y1="549.6" x2="1115.2" y2="549.6" stroke="#0b5cad" stroke-width="1.6" marker-start="url(#arr)" marker-end="url(#arr)"/>
+<rect x="1048.2" y="529.6" width="38" height="16" rx="3" fill="#fff" opacity="0.85"/><text x="1066.9" y="542.6" font-size="12" font-weight="bold" fill="#0b5cad" text-anchor="middle" font-family="sans-serif">3.0 м</text>
+<line x1="938.6" y1="559.2" x2="938.6" y2="655.2" stroke="#0b5cad" stroke-width="1.6" marker-start="url(#arr)" marker-end="url(#arr)"/>
+<rect x="942.6" y="598.2" width="38" height="16" rx="3" fill="#fff" opacity="0.85"/><text x="946.6" y="611.2" font-size="12" font-weight="bold" fill="#0b5cad" font-family="sans-serif">3.0 м</text>
+<line x1="694.4" y1="271.2" x2="694.4" y2="130.7" stroke="#0b5cad" stroke-width="1.6" marker-start="url(#arr)" marker-end="url(#arr)"/>
+<rect x="650.9" y="192.0" width="38" height="16" rx="3" fill="#fff" opacity="0.85"/><text x="654.9" y="205.0" font-size="12" font-weight="bold" fill="#0b5cad" font-family="sans-serif">4.4 м</text>
+<text x="904.0" y="194.7" font-size="13" text-anchor="middle" font-family="sans-serif" font-weight="bold">P · 2 авто друг за другом</text>
+<text x="904.0" y="217.1" font-size="10" text-anchor="middle" font-family="sans-serif" >14×4.3 м · 61 м² · бетон от забора до дома</text>
+<text x="619.2" y="684.0" font-size="14" text-anchor="middle" font-family="sans-serif" fill="#8a5a00">30.7 м · ЮГ (солнце днём)</text>
+<text x="747.1" y="111.9" font-size="14" text-anchor="middle" font-family="sans-serif" >24.2 м · СЕВЕР</text>
+<line x1="1128.4" y1="263.5" x2="1134.0" y2="141.9" stroke="#333" stroke-width="5"/>
+<line x1="1108.8" y1="445.9" x2="1117.2" y2="263.5" stroke="#333" stroke-width="2" stroke-dasharray="7 4"/>
+<text x="1100.2" y="354.7" font-size="10" text-anchor="middle" font-family="sans-serif" fill="#333" transform="rotate(-90 1100.2 354.7)">откат ворот ≈5.7 м</text>
+<line x1="1211.2" y1="202.7" x2="1115.2" y2="202.7" stroke="#222" stroke-width="2.5"/>
+<circle cx="1115.2" cy="202.7" r="4"/>
+<text x="1179.2" y="193.1" font-size="10" text-anchor="middle" font-family="sans-serif" fill="#222" font-weight="bold">ворота</text>
+<text x="1179.2" y="231.5" font-size="10" text-anchor="middle" font-family="sans-serif" fill="#222">откатные 3.8 м</text>
+<text x="214.0" y="391.6" font-size="14" text-anchor="middle" font-family="sans-serif">18.0 м</text>
+<text x="1160.4" y="394.7" font-size="14" text-anchor="middle" font-family="sans-serif">16.3 м</text><text x="1197.4" y="394.7" font-size="15" font-weight="bold" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 1197.4 394.7)">ул. 1905 года · ВОСТОК</text>
+<text x="384.0" y="200.8" font-size="14" text-anchor="middle" font-family="sans-serif" fill="#2f3b12" font-style="italic">газон</text>
+<text x="800.0" y="647.2" font-size="9" text-anchor="middle" font-family="sans-serif" fill="#2f3b12" font-style="italic">кустарник / живая изгородь</text>
+<g transform="rotate(-4.6 70 80)"><circle cx="70" cy="80" r="34" fill="#fff" stroke="#333" stroke-width="1.5"/><path d="M70,50 L79,86 L70,80 L61,86 z" fill="#c0392b"/><path d="M70,110 L79,74 L70,80 L61,74 z" fill="#999"/><text x="70" y="42" font-size="16" font-weight="bold" text-anchor="middle" font-family="sans-serif">С</text></g>
+<text x="160.0" y="85.6" font-size="12" fill="#5a2d82" font-weight="bold" font-family="sans-serif">↖ ж/д МЦД-1 (Баковка) ≈50 м — шум</text>
+<text x="96.4" y="367.2" font-size="12" fill="#1f7fb0" font-weight="bold" text-anchor="middle" font-family="sans-serif" transform="rotate(-66 96.4 367.2)">ЗАПАД · ручей ≈10–20 м · вечернее солнце</text>
+<text x="1094.4" y="693.6" font-size="12" fill="#555" font-family="sans-serif">↘ Минское ш. ≈100 м</text>
+<text x="20" y="778.239654221947" font-size="14" font-weight="bold" font-family="sans-serif">ИЖС, Одинцово, ул. 1905 года · ПЗЗ (обычно для ИЖС в МО): отступ 3 м, застройка ≤40% → дом 18% (уточнить по ГПЗУ)</text>
+<line x1="20" y1="803.239654221947" x2="50" y2="803.239654221947" stroke="#c0392b" stroke-dasharray="6 4" stroke-width="1.5"/>
+<text x="58" y="808.239654221947" font-size="13" font-family="sans-serif">граница пятна застройки: отступ 3 м от всех границ</text>
+<text x="20" y="832.239654221947" font-size="13" font-family="sans-serif">участок ≈450 м² · дом «Дабл» 160-2: пятно 9×9 = 81 м², 2 этажа ≈160 м² · парковка 61 м² · двор/сад ≈308 м², из них спортплощадка 77 м²</text>
+<text x="20" y="854.239654221947" font-size="13" fill="#0b5cad" font-family="sans-serif">синие размеры — расстояние от стены дома до забора</text>
+<text x="20" y="876.239654221947" font-size="13" fill="#555" font-family="sans-serif">«Дабл» 160-2 (DP-Module, 9×9×5.8 м) в 3 м от дороги и от южного забора · 2 авто друг за другом 14×4.3 м у северного забора · планировку этажей и место входа уточнить у DP-Module</text>
+</svg>
